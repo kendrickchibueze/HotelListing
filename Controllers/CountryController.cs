@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using HotelListing.Data;
+using HotelListing.Implementations;
 using HotelListing.Interfaces;
 using HotelListing.Models;
-using HotelListing.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +15,6 @@ namespace HotelListing.Controllers
     {
         private readonly ICountryService _countryService;
         private readonly IMapper _mapper;
-
         public CountryController(IMapper mapper, ICountryService countryService)
         {
             _countryService = countryService;
@@ -26,13 +25,13 @@ namespace HotelListing.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCountry(int id)
-        {        
+        {
             var country = await _countryService.GetCountry(id);
             var result = _mapper.Map<CountryDTO>(country);
             return Ok(result);
         }
 
-        [HttpGet( "GetCountries")]
+        [HttpGet("GetCountries")]
         public async Task<IActionResult> GetCountries()
         {
             var countries = await _countryService.GetCountries();
@@ -40,8 +39,8 @@ namespace HotelListing.Controllers
             return Ok(results);
         }
 
-        [Authorize(Roles = "Administrator")]
-        [HttpPost]
+        //[Authorize(Roles = "Administrator")]
+        [HttpPost("CreateCountry")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -50,41 +49,28 @@ namespace HotelListing.Controllers
             if (!ModelState.IsValid)
             {
                 return BadRequest($"Invalid POST attempt in {nameof(CreateCountry)}");
-
             }
             var country = _mapper.Map<Country>(countryDTO);
             await _countryService.CreateCountry(country);
             return CreatedAtRoute("GetCountry", new { id = country.Id }, country);
-
         }
 
-        /*  [Authorize]
-          [HttpPut("{id:int}")]
-          [ProducesResponseType(StatusCodes.Status400BadRequest)]
-          [ProducesResponseType(StatusCodes.Status204NoContent)]
-          [ProducesResponseType(StatusCodes.Status500InternalServerError)]*/
-        /*    public async Task<IActionResult> UpdateCountry(int id, [FromBody] UpdateCountryDTO countryDTO)
+        //[Authorize]
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateCountry(int id, [FromBody] UpdateCountryDTO countryDTO)
+        {
+            if (!ModelState.IsValid || id < 1)
             {
-                if (!ModelState.IsValid || id < 1)
-                {
-                    _logger.LogError($"Invalid UPDATE attempt in {nameof(UpdateCountry)}");
-                    return BadRequest(ModelState);
-                }
-
-                var country = await _unitOfWork.Countries.Get(q => q.Id == id);
-                if (country == null)
-                {
-                    _logger.LogError($"Invalid UPDATE attempt in {nameof(UpdateCountry)}");
-                    return BadRequest("Submitted data is invalid");
-                }
-
-                _mapper.Map(countryDTO, country);
-                _unitOfWork.Countries.Update(country);
-                await _unitOfWork.Save();
-
-                return NoContent();
-
-            }*/
+                return BadRequest($"Invalid UPDATE attempt in {nameof(UpdateCountry)}");
+            
+            }
+            var country = _mapper.Map<Country>(countryDTO);
+            await _countryService.UpdateCountry(id, country);
+            return Ok("Country updated successfully");
+        }
 
         [Authorize]
         [HttpDelete("{id:int}")]
@@ -97,10 +83,8 @@ namespace HotelListing.Controllers
             {
                 return BadRequest($"Invalid DELETE attempt in {nameof(DeleteCountry)}");
             }
-
             var country = await _countryService.DeleteCountry(id);
             return Ok(country);
-
         }
     }
 }

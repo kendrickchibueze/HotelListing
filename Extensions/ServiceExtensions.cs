@@ -27,7 +27,6 @@ namespace HotelListing.Extensions
         {
             services.AddAutoMapper(typeof(Program));
         }
-
         public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
         {
             var Connection = configuration.GetSection("ConnectionString")["DefaultConn"];
@@ -42,7 +41,6 @@ namespace HotelListing.Extensions
                .AddEntityFrameworkStores<DatabaseContext>()
               .AddDefaultTokenProviders();
             services.AddMemoryCache();
-
             services.ConfigureAutoMapper();
             services.AddTransient<IUnitOfWork, UnitOfWork<DatabaseContext>>(); //creates a fresh copy of Iunitofwork when hit controller
             services.AddScoped<ICountryService, CountryService>();

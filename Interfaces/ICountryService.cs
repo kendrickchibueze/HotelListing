@@ -7,6 +7,7 @@ namespace HotelListing.Interfaces
         Task<IEnumerable<Country>> GetCountries();
         Task<Country> GetCountry(int id);
         Task<Country> CreateCountry(Country country);
+        Task UpdateCountry(int id, Country country);
         Task<string> DeleteCountry(int id);
     }
 }

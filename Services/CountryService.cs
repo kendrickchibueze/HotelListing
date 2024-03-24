@@ -1,24 +1,22 @@
 ﻿using AutoMapper;
 using HotelListing.Data;
 using HotelListing.Interfaces;
+using HotelListing.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelListing.Services
 {
     public class CountryService:ICountryService
     {
-
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepository<Country> _countryRepo;
         private readonly IMapper _mapper;
-
         public CountryService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _countryRepo = _unitOfWork.GetRepository<Country>();
         }
-
         public async Task<IEnumerable<Country>> GetCountries()
         {
             var countries = await _countryRepo.GetByAsync(include: query => query.Include(x => x.Hotels));
@@ -31,13 +29,11 @@ namespace HotelListing.Services
             if (country == null) throw new InvalidOperationException($"country with id {id} does not exist");
             return country;
         }
-
         public async Task<Country> CreateCountry(Country country)
         {
             var newCountry = await _countryRepo.AddAsync(country);
             if (newCountry == null) throw new InvalidOperationException("Unable to Add a Country");
-            return newCountry;
-            
+            return newCountry;        
         }
 
         public async Task<string> DeleteCountry(int id)
@@ -46,8 +42,16 @@ namespace HotelListing.Services
             if (country == null)
                 throw new InvalidOperationException($"country with the ${id} does not exist");
             await _countryRepo.DeleteAsync(x => x.Id == id);
-            return $"successfully deleted country with Id ${id}";
-            
+            return $"successfully deleted country with Id ${id}";       
+        }
+        public async Task UpdateCountry(int id, Country country)
+        {
+            var existingCountry = await _countryRepo.GetSingleByAsync(predicate: x => x.Id == id);
+            if (existingCountry == null)
+                throw new InvalidOperationException($"country with the ${id} does not exit");
+            existingCountry = _mapper.Map<Country>(country);
+            existingCountry.Id = id;
+            await _countryRepo.UpdateAsync(existingCountry);
         }
     }
 }
