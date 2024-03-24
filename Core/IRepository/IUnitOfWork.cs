@@ -1,12 +1,15 @@
-﻿using HotelListing.Data;
-using HotelListing.IRepository;
-
-namespace HotelListing.Core.IRepository
+﻿namespace HotelListing.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
-        IGenericRepository<Country> Countries { get; }
-        IGenericRepository<Hotel> Hotels { get; }
-        Task Save();
+        IRepository<TEntity> GetRepository<TEntity>() where TEntity : class;
+
+        int SaveChanges();
+
+        Task<int> SaveChangesAsync();
+    }
+
+    public interface IUnitOfWork<TContext> : IUnitOfWork
+    {
     }
 }
