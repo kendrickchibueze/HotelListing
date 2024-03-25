@@ -44,7 +44,7 @@ namespace HotelListing.Extensions
             services.ConfigureAutoMapper();
             services.AddTransient<IUnitOfWork, UnitOfWork<DatabaseContext>>(); //creates a fresh copy of Iunitofwork when hit controller
             services.AddScoped<ICountryService, CountryService>();
-
+            services.AddScoped<IHotelService, HotelService>();
         }
 
     }

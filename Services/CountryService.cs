@@ -35,7 +35,6 @@ namespace HotelListing.Services
             if (newCountry == null) throw new InvalidOperationException("Unable to Add a Country");
             return newCountry;        
         }
-
         public async Task<string> DeleteCountry(int id)
         {
             var country = await _countryRepo.GetSingleByAsync(predicate: x => x.Id == id);

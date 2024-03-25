@@ -84,7 +84,7 @@ namespace HotelListing.Controllers
                 return BadRequest($"Invalid DELETE attempt in {nameof(DeleteCountry)}");
             }
             var country = await _countryService.DeleteCountry(id);
-            return Ok(country);
+            return Ok("Country deleted successfully");
         }
     }
 }
