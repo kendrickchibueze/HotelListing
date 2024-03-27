@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using HotelListing.Data;
+using HotelListing.DTO.Request;
+using HotelListing.DTO.Response;
 using HotelListing.Interfaces;
-using HotelListing.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelListing.Controllers

@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 using HotelListing.Data;
 using HotelListing.Interfaces;
-using HotelListing.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelListing.Services
 {
-    public class CountryService:ICountryService
+    public class CountryService : ICountryService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRepository<Country> _countryRepo;
@@ -33,7 +32,7 @@ namespace HotelListing.Services
         {
             var newCountry = await _countryRepo.AddAsync(country);
             if (newCountry == null) throw new InvalidOperationException("Unable to Add a Country");
-            return newCountry;        
+            return newCountry;
         }
         public async Task<string> DeleteCountry(int id)
         {
@@ -41,7 +40,7 @@ namespace HotelListing.Services
             if (country == null)
                 throw new InvalidOperationException($"country with the ${id} does not exist");
             await _countryRepo.DeleteAsync(x => x.Id == id);
-            return $"successfully deleted country with Id ${id}";       
+            return $"successfully deleted country with Id ${id}";
         }
         public async Task UpdateCountry(int id, Country country)
         {

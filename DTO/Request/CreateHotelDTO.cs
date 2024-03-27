@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace HotelListing.Models
+namespace HotelListing.DTO.Request
 {
-   
-
     public class CreateHotelDTO
     {
         [Required]
@@ -19,16 +17,5 @@ namespace HotelListing.Models
         public double Rating { get; set; }
 
         public int CountryId { get; set; }
-    }
-
-    public class UpdateHotelDTO : CreateHotelDTO
-    {
-
-    }
-
-    public class HotelDTO : CreateHotelDTO
-    {
-        public int Id { get; set; }
-        public CountryDTO Country { get; set; }
     }
 }

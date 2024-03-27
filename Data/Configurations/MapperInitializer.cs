@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
-using HotelListing.Models;
+using HotelListing.DTO.Request;
+using HotelListing.DTO.Response;
 
 namespace HotelListing.Data.Configurations
 {
-    public class MapperInitializer:Profile
+    public class MapperInitializer : Profile
     {
 
         public MapperInitializer()

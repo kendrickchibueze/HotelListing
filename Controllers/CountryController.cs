@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using HotelListing.Data;
-using HotelListing.Implementations;
+using HotelListing.DTO.Request;
+using HotelListing.DTO.Response;
 using HotelListing.Interfaces;
-using HotelListing.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -65,7 +65,7 @@ namespace HotelListing.Controllers
             if (!ModelState.IsValid || id < 1)
             {
                 return BadRequest($"Invalid UPDATE attempt in {nameof(UpdateCountry)}");
-            
+
             }
             var country = _mapper.Map<Country>(countryDTO);
             await _countryService.UpdateCountry(id, country);

@@ -22,6 +22,8 @@ namespace HotelListing
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddAutoMapper(typeof(MapperInitializer));
+            builder.Services.ConfigureJWT(builder.Configuration);
+            builder.Services.ConfigureSwaggerDoc();
 
             builder.Services.AddSwaggerGen(sw =>
 
@@ -36,6 +38,7 @@ namespace HotelListing
             }
             app.UseCors("AllowAll");
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
             app.Run();
