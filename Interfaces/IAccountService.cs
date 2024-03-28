@@ -1,13 +1,13 @@
-﻿using HotelListing.DTO.Response;
+﻿using HotelListing.Data;
+using HotelListing.DTO.Request;
+using HotelListing.DTO.Response;
 
 namespace HotelListing.Interfaces
 {
     public interface IAccountService
     {
-        public Task<UserManagerResponse> Register();
-
-        public Task<UserManagerResponse> Login();
-
-        public Task<UserManagerResponse> RefreshToken();
+        public Task<UserManagerResponse> Register(UserDTO userDTO);
+        public Task<UserManagerResponse> Login(LoginUserDTO userDTO);
+        public Task<TokenRequestDTO> RefreshToken(TokenRequestDTO request);       
     }
 }

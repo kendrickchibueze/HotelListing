@@ -1,9 +1,12 @@
-﻿using HotelListing.Data;
+﻿using AspNetCoreRateLimit;
+using HotelListing.Data;
 using HotelListing.Implementations;
 using HotelListing.Interfaces;
 using HotelListing.Services;
+using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -41,14 +44,34 @@ namespace HotelListing.Extensions
                 options.UseSqlServer(Connection);
             });
 
-            services.AddIdentity<ApiUser, IdentityRole>()
-               .AddEntityFrameworkStores<DatabaseContext>()
-              .AddDefaultTokenProviders();
+             services.AddIdentityCore<ApiUser>()
+                .AddRoles<IdentityRole>()
+                .AddTokenProvider<DataProtectorTokenProvider<ApiUser>>("HotelListingApi")
+                .AddEntityFrameworkStores<DatabaseContext>()
+                .AddDefaultTokenProviders();
             services.AddMemoryCache();
+            services.AddResponseCaching();
+            services.ConfigureRateLimiting();
+            services.AddInMemoryRateLimiting();
+            services.AddHttpContextAccessor();
+            services.ConfigureHttpCacheHeaders();
             services.ConfigureAutoMapper();
             services.AddTransient<IUnitOfWork, UnitOfWork<DatabaseContext>>(); //creates a fresh copy of Iunitofwork when hit controller
             services.AddScoped<ICountryService, CountryService>();
             services.AddScoped<IHotelService, HotelService>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IAuthManager, AuthManager>();
+
+            services.AddControllers(config => {
+                config.CacheProfiles.Add("120SecondsDuration", new CacheProfile
+                {
+                    Duration = 120
+
+                });
+            }).AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+            });
         }
         public static void ConfigureJWT(this IServiceCollection services, IConfiguration Configuration)
         {
@@ -86,6 +109,7 @@ namespace HotelListing.Extensions
                     Type = SecuritySchemeType.ApiKey,
                     Scheme = "Bearer"
                 });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "HotelListing", Version = "v1" });
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement() {
                     {
                         new OpenApiSecurityScheme
@@ -102,6 +126,40 @@ namespace HotelListing.Extensions
                     }
                 });
             });
+        }     
+        public static void ConfigureHttpCacheHeaders(this IServiceCollection services)
+        {
+            services.AddResponseCaching();
+            services.AddHttpCacheHeaders(
+                (expirationOpt) =>
+                {
+                    expirationOpt.MaxAge = 120;
+                    expirationOpt.CacheLocation = CacheLocation.Private;
+                },
+                (validationOpt) =>
+                {
+                    validationOpt.MustRevalidate = true;
+                }
+            );
+        }
+        public static void ConfigureRateLimiting(this IServiceCollection services)
+        {
+            var rateLimitRules = new List<RateLimitRule>
+            {
+                new RateLimitRule
+                {
+                    Endpoint = "*",
+                    Limit= 1,
+                    Period = "5s"
+                }
+            };
+            services.Configure<IpRateLimitOptions>(opt =>
+            {
+                opt.GeneralRules = rateLimitRules;
+            });
+            services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+            services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
         }
     }
 }

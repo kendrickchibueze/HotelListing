@@ -3,6 +3,7 @@ using HotelListing.Data;
 using HotelListing.DTO.Request;
 using HotelListing.DTO.Response;
 using HotelListing.Interfaces;
+using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,6 +23,7 @@ namespace HotelListing.Controllers
         }
 
         [HttpGet("{id:int}", Name = "GetCountry")]
+        [ResponseCache(CacheProfileName = "120SecondsDuration")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCountry(int id)
@@ -32,6 +34,10 @@ namespace HotelListing.Controllers
         }
 
         [HttpGet("GetCountries")]
+        [HttpCacheExpiration(CacheLocation = CacheLocation.Public, MaxAge = 60)]
+        [HttpCacheValidation(MustRevalidate = false)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCountries()
         {
             var countries = await _countryService.GetCountries();
@@ -39,7 +45,7 @@ namespace HotelListing.Controllers
             return Ok(results);
         }
 
-        //[Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator")]
         [HttpPost("CreateCountry")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -55,7 +61,7 @@ namespace HotelListing.Controllers
             return CreatedAtRoute("GetCountry", new { id = country.Id }, country);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

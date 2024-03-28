@@ -3,6 +3,7 @@ using HotelListing.Data;
 using HotelListing.DTO.Request;
 using HotelListing.DTO.Response;
 using HotelListing.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelListing.Controllers
@@ -41,7 +42,7 @@ namespace HotelListing.Controllers
             return Ok(result);
         }
 
-        // [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -58,7 +59,7 @@ namespace HotelListing.Controllers
             return CreatedAtRoute("GetHotel", new { id = hotel.Id }, hotel);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -74,7 +75,7 @@ namespace HotelListing.Controllers
             await _hotelService.UpdateHotel(id, hotel);
             return Ok("Hotel updated successfully");
         }
-        // [Authorize]
+        [Authorize]
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
