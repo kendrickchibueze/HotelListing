@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HotelListing.Data;
+using HotelListing.Decorator;
 using HotelListing.DTO.Request;
 using HotelListing.DTO.Response;
 using HotelListing.Interfaces;
@@ -10,19 +11,19 @@ namespace HotelListing.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class HotelController : ControllerBase
+    public class HotelsController : ControllerBase
     {
         private readonly IHotelService _hotelService;
         private readonly IMapper _mapper;
-        private readonly ILogger<HotelController> _logger;
-        public HotelController(IMapper mapper, IHotelService hotelService, ILogger<HotelController> logger)
+        private readonly ILogger<HotelsController> _logger;
+        public HotelsController(IMapper mapper, IHotelService hotelService, ILogger<HotelsController> logger)
         {
             _hotelService = hotelService;
             _mapper = mapper;
             _logger = logger;
         }
 
-        [HttpGet("GetHotels")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetHotels()
@@ -32,7 +33,7 @@ namespace HotelListing.Controllers
             return Ok(results);
         }
 
-        [HttpGet("{id:int}", Name = "GetHotel")]
+        [HttpGet("{id:int}" , Name = "GetHotel")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetHotel(int id)

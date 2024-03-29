@@ -43,7 +43,6 @@ namespace HotelListing.Extensions
 
                 options.UseSqlServer(Connection);
             });
-
              services.AddIdentityCore<ApiUser>()
                 .AddRoles<IdentityRole>()
                 .AddTokenProvider<DataProtectorTokenProvider<ApiUser>>("HotelListingApi")
@@ -151,7 +150,7 @@ namespace HotelListing.Extensions
                     Endpoint = "*",
                     Limit= 1,
                     Period = "5s"
-                }
+                }         
             };
             services.Configure<IpRateLimitOptions>(opt =>
             {

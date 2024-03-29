@@ -26,11 +26,11 @@ namespace HotelListing
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            app.UseHttpsRedirection();
             app.UseCors("AllowAll");
             app.UseResponseCaching();
             app.UseHttpCacheHeaders();
-            app.UseIpRateLimiting();
-            app.UseHttpsRedirection();
+            app.UseIpRateLimiting();       
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
