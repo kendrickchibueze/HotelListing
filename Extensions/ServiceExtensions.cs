@@ -1,15 +1,18 @@
 ﻿using AspNetCoreRateLimit;
 using HotelListing.Data;
+using HotelListing.DTO.Response;
 using HotelListing.Implementations;
 using HotelListing.Interfaces;
 using HotelListing.Services;
 using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Text;
 
 namespace HotelListing.Extensions
@@ -36,7 +39,7 @@ namespace HotelListing.Extensions
         }
         public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
         {
-            var Connection = configuration.GetSection("ConnectionString")["DefaultConn"];
+            var Connection = configuration.GetSection("ConnectionStrings")["DefaultConn"];
 
             services.AddDbContext<DatabaseContext>(options =>
             {
@@ -71,6 +74,9 @@ namespace HotelListing.Extensions
             {
                 options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
             });
+            services.AddHealthChecks()
+               .AddSqlServer(configuration.GetConnectionString("DefaultConn"));
+            services.AddHealthChecksUI().AddInMemoryStorage();
         }
         public static void ConfigureJWT(this IServiceCollection services, IConfiguration Configuration)
         {
@@ -148,7 +154,7 @@ namespace HotelListing.Extensions
                 new RateLimitRule
                 {
                     Endpoint = "*",
-                    Limit= 1,
+                    Limit= 3,
                     Period = "5s"
                 }         
             };
@@ -159,6 +165,27 @@ namespace HotelListing.Extensions
             services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
             services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+        }
+        public static void ConfigureExceptionHandler(this IApplicationBuilder app)
+        {
+            app.UseExceptionHandler(error =>
+            {
+                error.Run(async context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    context.Response.ContentType = "application/json";
+                    var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+                    if (contextFeature != null)
+                    {
+                        Log.Error($"Something Went Wrong in the {contextFeature.Error}");
+                        await context.Response.WriteAsync(new Error
+                        {
+                            StatusCode = context.Response.StatusCode,
+                            Message = "Internal Server Error. Please Try Again Later."
+                        }.ToString());
+                    }
+                });
+            });
         }
     }
 }
