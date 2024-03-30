@@ -2,6 +2,7 @@ using AspNetCoreRateLimit;
 using HotelListing.Data.Configurations;
 using HotelListing.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace HotelListing
 {
@@ -17,6 +18,9 @@ namespace HotelListing
        
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
+          
             builder.Services.AddAutoMapper(typeof(MapperInitializer));
             builder.Services.ConfigureJWT(builder.Configuration);
             builder.Services.ConfigureSwaggerDoc();
@@ -26,6 +30,7 @@ namespace HotelListing
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            app.UseSerilogRequestLogging();
             app.UseHttpsRedirection();
             app.UseCors("AllowAll");
             app.UseResponseCaching();

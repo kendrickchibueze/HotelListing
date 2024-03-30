@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using HotelListing.Data;
-using HotelListing.Decorator;
 using HotelListing.DTO.Request;
 using HotelListing.DTO.Response;
 using HotelListing.Interfaces;
@@ -33,7 +32,7 @@ namespace HotelListing.Controllers
             return Ok(results);
         }
 
-        [HttpGet("{id:int}" , Name = "GetHotel")]
+        [HttpGet("{id:int}", Name = "GetHotel")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetHotel(int id)
